@@ -199,9 +199,9 @@ static inline void dhcp_msg_reply(uint8_t *reply, uint8_t **options,
 }
 
 #define dhcp_opt_insert_val(buf, buf_len, send_len, opt, type, vtype, value) \
-	do { vtype v = value; dhcp_opt_insert(buf, buf_len, send_len, opt, type, sizeof(vtype), (uint8_t)&v); } while(0);
+	do { vtype v = value; dhcp_opt_insert(buf, buf_len, send_len, opt, type, sizeof(vtype), (uint8_t *)(&(v))); } while(0)
 
-static inline bool dhcp_opt_insert(uint8_t **buf, size_t *buf_len, size_t *send_len, uint8_t **opt, enum dhcp_msg_type type, size_t data_len, uint8_t *data)
+static inline bool dhcp_opt_insert(uint8_t *buf, size_t buf_len, size_t *send_len, uint8_t **opt, enum dhcp_msg_type type, size_t data_len, uint8_t *data)
 {
 	if(!buf || !*buf || !opt | !*opt) {
 		return false;
@@ -211,7 +211,7 @@ static inline bool dhcp_opt_insert(uint8_t **buf, size_t *buf_len, size_t *send_
 		return false;
 	}
 
-	if( (size_t)(*opt - *buf) > *buf_len ) {
+	if( (size_t)(*opt - buf) > buf_len ) {
 		return false;
 	}
 
@@ -219,7 +219,7 @@ static inline bool dhcp_opt_insert(uint8_t **buf, size_t *buf_len, size_t *send_
 		return false;
 	}
 
-	if(send_len + 2 + data_len > buf_len) {
+	if(*send_len + 2 + data_len > buf_len) {
 		return false;
 	}
 
