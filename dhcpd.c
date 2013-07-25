@@ -111,6 +111,11 @@ static void discover_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 {
 	(void)EV_A;
 
+	/* XXX: Take address from pool
+	 * 			If it is empty, ask for new address
+	 *			If not, send offer and rebalance pool if below threshhold?
+	 */
+
 	struct dhcp_lease lease = DHCP_LEASE_EMPTY;
 
 	lease = (struct dhcp_lease){
@@ -166,6 +171,21 @@ static void discover_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 static void request_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 {
 	(void)EV_A;
+
+	/* XXX: Fetch lease with callback
+	 *
+	 * struct:
+	 * 		- request_id
+	 * 		- dhcp_msg
+	 * 		- callback_ptr
+	 * 		- timeout
+	 *
+	 * timeout -> NAK
+	 *
+	 * Callback: Check whether lease matches client
+	 *           If yes, ACK
+	 *           If no, NAK
+	 */
 
 	struct in_addr *requested_server;
 	struct in_addr *requested_addr;
@@ -249,6 +269,8 @@ static void release_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 	(void)EV_A;
 	(void)w;
 	(void)msg;
+
+	/* XXX: Send message to manager */
 }
 
 /**
@@ -259,6 +281,8 @@ static void decline_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 	(void)EV_A;
 	(void)w;
 	(void)msg;
+
+	/* XXX: Send message to manager */
 }
 
 /**
@@ -269,6 +293,9 @@ static void inform_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 	(void)EV_A;
 	(void)w;
 	(void)msg;
+
+	/* XXX: http://tools.ietf.org/html/draft-ietf-dhc-dhcpinform-clarify-04
+	 */
 }
 
 /**
