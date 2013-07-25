@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "pool.h"
 
@@ -12,6 +13,8 @@ struct pool *pool_create() {
 }
 
 void pool_destroy(struct pool *pool) {
+	assert(pool != NULL);
+
 	free(pool->a);
 	free(pool);
 }
