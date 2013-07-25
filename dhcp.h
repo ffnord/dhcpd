@@ -198,6 +198,43 @@ static inline void dhcp_msg_reply(uint8_t *reply, uint8_t **options,
 	DHCP_OPT_CONT(*options, *send_len);
 }
 
+#define dhcp_opt_insert_val(buf, buf_len, send_len, opt, type, vtype, value) \
+	do { vtype v = value; dhcp_opt_insert(buf, buf_len, send_len, opt, type, sizeof(vtype), (uint8_t)&v); } while(0);
+
+static inline bool dhcp_opt_insert(uint8_t **buf, size_t *buf_len, size_t *send_len, uint8_t **opt, enum dhcp_msg_type type, size_t data_len, uint8_t *data)
+{
+	if(!buf || !*buf || !opt | !*opt) {
+		return false;
+	}
+
+	if( (size_t)(*opt - *buf) != *send_len ) {
+		return false;
+	}
+
+	if( (size_t)(*opt - *buf) > *buf_len ) {
+		return false;
+	}
+
+	if(data_len > 255) {
+		return false;
+	}
+
+	if(send_len + 2 + data_len > buf_len) {
+		return false;
+	}
+
+	(*opt)[0] = type;
+	(*opt)[1] = data_len;
+
+	if(data_len) {
+		memcpy(*opt + 2, data, data_len);
+	}
+
+	DHCP_OPT_CONT(*opt, *send_len);
+
+	return true;
+}
+
 static inline bool dhcp_opt_next(uint8_t **cur, struct dhcp_opt *opt, uint8_t *end)
 {
 	if (*DHCP_OPT_F_CODE(*cur) == DHCP_OPT_END)
