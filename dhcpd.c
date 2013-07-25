@@ -449,7 +449,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Prepare dummy IP Pool */
-	pool = pool_create();
+	pool = pool_create(8);
 
 	struct pool_entry entry;
 	uint32_t ip;

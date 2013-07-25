@@ -4,10 +4,12 @@
 
 #include "pool.h"
 
-struct pool *pool_create() {
+struct pool *pool_create(uint32_t size) {
 	struct pool *pool;
 
 	pool = (struct pool*)calloc(1, sizeof(struct pool));
+
+	pool_resize(pool, size);
 
 	return pool;
 }
@@ -31,11 +33,13 @@ struct pool_entry *pool_get(struct pool *pool) {
 	return entry;
 }
 
-void pool_add(struct pool *pool, struct pool_entry *entry) {
+bool pool_add(struct pool *pool, struct pool_entry *entry) {
 	if (pool->limit < pool->size + 1)
-		pool_resize(pool, pool->limit + 1);
+		return false;
 
 	memcpy(&pool->a[pool->size++], entry, sizeof(struct pool_entry));
+
+	return true;
 }
 
 void pool_resize(struct pool *pool, uint32_t limit) {
