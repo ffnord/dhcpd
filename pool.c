@@ -6,11 +6,7 @@
 struct pool *pool_create() {
 	struct pool *pool;
 
-	pool = (struct pool*)malloc(sizeof(struct pool));
-
-	pool->limit = 0;
-	pool->size = 0;
-	pool->a = NULL;
+	pool = (struct pool*)calloc(1, sizeof(struct pool));
 
 	return pool;
 }
