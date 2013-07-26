@@ -161,12 +161,14 @@ static void request_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 
 	struct dhcp_lease lease = DHCP_LEASE_EMPTY;
 
+	lease.address = *requested_addr;
+
 	if (0) {
 		// NACK
 		send_nak(loop, w, msg);
 	} else {
 		// ACK
-		send_ack(loop, w, msg, &lease, requested_addr);
+		send_ack(loop, w, msg, &lease);
 	}
 }
 

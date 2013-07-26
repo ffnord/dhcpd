@@ -50,7 +50,7 @@ bool send_offer(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
 	return true;
 }
 
-bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l, struct in_addr *r) {
+bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
 	(void)EV_A;
 
 	uint8_t *buf = malloc(DHCP_MSG_LEN);
@@ -64,8 +64,6 @@ bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l, struct i
 
 	// ACK
 	dhcp_msg_reply(buf, &options, &send_len, m, DHCPACK);
-
-	memcpy(&l->address, r, sizeof(struct in_addr));
 
 	ARRAY_COPY(DHCP_MSG_F_YIADDR(buf), &l->address, 4);
 
