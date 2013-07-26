@@ -49,44 +49,6 @@ static inline char *iplist_dump(struct in_addr *in, size_t in_cnt, char *out, si
 }
 
 /**
- * Convert ip list text representation to binary representation
- */
-static inline bool iplist_parse(const char *in, struct in_addr **out, size_t *cnt)
-{
-	size_t off = 0;
-	char addr[INET_ADDRSTRLEN];
-	memset(addr, 0, INET_ADDRSTRLEN);
-	while (*in && off < INET_ADDRSTRLEN-1)
-	{
-		addr[off++] = *(in++);
-
-		if (*in == ',' || *in == 0)
-		{
-			*out = realloc(*out, sizeof **out * ++(*cnt));
-			if (inet_pton(AF_INET, addr, &(*out)[(*cnt)-1]) == 0)
-				goto return_false;
-
-			off = 0;
-			memset(addr, 0, INET_ADDRSTRLEN);
-
-			if (*in != 0)
-				++in;
-		}
-	}
-
-	if (!(off < INET_ADDRSTRLEN-1))
-	{
-return_false:
-		free(*out);
-		*out = NULL;
-		*cnt = 0;
-		return false;
-	}
-
-	return true;
-}
-
-/**
  * Generate comparision code, which checks whether a is part of the IP range
  * [l, u].
  *
