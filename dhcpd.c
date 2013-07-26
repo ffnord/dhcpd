@@ -74,20 +74,6 @@ static const char USAGE[] =
 #define MAC_ADDRSTRLEN 18
 
 /**
- * Convert MAC address from binary representation to text representation
- *
- * @param[in] addr Binary representation
- * @param[out] dst Buffer to write text presentation
- * @param[in] s Size of dst
- */
-static int mac_ntop(char *addr, char *dst, size_t s)
-{
-	return snprintf(dst, s,
-		"%02hhX:%02hhX:%02hhX:%02hhX:%02hhX:%02hhX",
-		addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
-}
-
-/**
  * Print debugging information with preamble marking incoming and
  * outgoing packets
  *
@@ -336,7 +322,6 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 			 yiaddr[INET_ADDRSTRLEN],
 			 siaddr[INET_ADDRSTRLEN],
 			 giaddr[INET_ADDRSTRLEN],
-			 chaddr[MAC_ADDRSTRLEN],
 			 srcaddr[INET_ADDRSTRLEN];
 
 	inet_ntop(AF_INET, DHCP_MSG_F_CIADDR(recv_buffer), ciaddr, sizeof ciaddr);
@@ -344,7 +329,6 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 	inet_ntop(AF_INET, DHCP_MSG_F_SIADDR(recv_buffer), siaddr, sizeof siaddr);
 	inet_ntop(AF_INET, DHCP_MSG_F_GIADDR(recv_buffer), giaddr, sizeof giaddr);
 	inet_ntop(AF_INET, &src_addr.sin_addr, srcaddr, sizeof srcaddr);
-	mac_ntop(DHCP_MSG_F_CHADDR(recv_buffer), chaddr, sizeof chaddr);
 
 	/* Extract message type from options */
 	uint8_t *options = DHCP_MSG_F_OPTIONS(recv_buffer);
@@ -365,11 +349,12 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 		.yiaddr = yiaddr,
 		.siaddr = siaddr,
 		.giaddr = giaddr,
-		.chaddr = chaddr,
 		.srcaddr = srcaddr,
 		.source = (struct sockaddr *)&src_addr,
 		.sid = (struct sockaddr_in *)&server_id
 	};
+
+	memcpy(&msg.chaddr, DHCP_MSG_F_CHADDR(recv_buffer), sizeof(uint8_t) * 16);
 
 	if (debug)
 		msg_debug(&msg, 0);
