@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 
 #include "pool.h"
@@ -28,7 +27,7 @@ struct pool_entry *pool_get(struct pool *pool) {
 		return NULL;
 
 	entry = (struct pool_entry*)malloc(sizeof(struct pool_entry));
-	memcpy(entry, &pool->a[--pool->size], sizeof(struct pool_entry));
+	*entry = pool->a[--pool->size];
 
 	return entry;
 }
@@ -37,7 +36,7 @@ bool pool_add(struct pool *pool, struct pool_entry *entry) {
 	if (pool->limit < pool->size + 1)
 		return false;
 
-	memcpy(&pool->a[pool->size++], entry, sizeof(struct pool_entry));
+	pool->a[pool->size++] = *entry;
 
 	return true;
 }
