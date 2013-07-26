@@ -354,7 +354,7 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 		.sid = (struct sockaddr_in *)&server_id
 	};
 
-	memcpy(&msg.chaddr, DHCP_MSG_F_CHADDR(recv_buffer), sizeof(uint8_t) * 16);
+	memcpy(&msg.chaddr, DHCP_MSG_F_CHADDR(recv_buffer), sizeof(msg.chaddr));
 
 	if (debug)
 		msg_debug(&msg, 0);
