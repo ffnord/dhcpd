@@ -1,7 +1,11 @@
 #pragma once
 
+#include <netinet/in.h>
+
+#include <ev.h>
+
 #include "dhcp.h"
 
-bool send_offer(struct dhcp_msg *m, struct dhcp_lease *l);
-bool send_ack(struct dhcp_msg *m, struct dhcp_lease *l, struct in_addr *r);
-bool send_nak(struct dhcp_msg *m);
+bool send_offer(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l);
+bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l, struct in_addr *r);
+bool send_nak(EV_P_ ev_io *w, struct dhcp_msg *m);

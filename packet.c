@@ -5,7 +5,9 @@
 
 #include "error.h"
 
-bool send_offer(struct dhcp_msg *m, struct dhcp_lease *l) {
+bool send_offer(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
+	(void)EV_A;
+
 	uint8_t *buf = malloc(DHCP_MSG_LEN);
 	if(!buf) {
 		dhcpd_error(ENOMEM, 1, "Could not send DHCPOFFER");
@@ -43,7 +45,9 @@ bool send_offer(struct dhcp_msg *m, struct dhcp_lease *l) {
 	return true;
 }
 
-bool send_ack(struct dhcp_msg *m, struct dhcp_lease *l, struct in_addr *r) {
+bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l, struct in_addr *r) {
+	(void)EV_A;
+
 	uint8_t *buf = malloc(DHCP_MSG_LEN);
 	if(!buf) {
 		dhcpd_error(ENOMEM, 1, "Could not send DHCPOFFER");
@@ -83,7 +87,9 @@ bool send_ack(struct dhcp_msg *m, struct dhcp_lease *l, struct in_addr *r) {
 	return true;
 }
 
-bool send_nak(struct dhcp_msg *m) {
+bool send_nak(EV_P_ ev_io *w, struct dhcp_msg *m) {
+	(void)EV_A;
+
 	uint8_t *buf = malloc(DHCP_MSG_LEN);
 	if(!buf) {
 		dhcpd_error(ENOMEM, 1, "Could not send DHCPOFFER");
