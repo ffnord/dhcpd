@@ -34,6 +34,7 @@
 #include "error.h"
 #include "config.h"
 #include "iplist.h"
+#include "packet.h"
 #include "pool.h"
 
 #ifndef RECV_BUF_LEN
@@ -45,12 +46,6 @@
 #endif
 
 #define VERSION "0.1"
-
-struct sockaddr_in server_id;
-struct sockaddr_in broadcast = {
-	.sin_family = AF_INET,
-	.sin_addr = {INADDR_BROADCAST},
-};
 
 uint8_t recv_buffer[RECV_BUF_LEN];
 uint8_t send_buffer[SEND_BUF_LEN];
@@ -124,30 +119,7 @@ static void discover_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 
 	free(entry);
 
-	size_t send_len;
-	uint8_t *options;
-	dhcp_msg_reply(send_buffer, &options, &send_len, msg, DHCPOFFER);
-
-	ARRAY_COPY(DHCP_MSG_F_YIADDR(send_buffer), &lease.address, 4);
-
-	options[0] = DHCP_OPT_SERVERID;
-	options[1] = 4;
-	ARRAY_COPY((options + 2), &msg->sid->sin_addr, 4);
-	DHCP_OPT_CONT(options, send_len);
-
-	options = dhcp_opt_add_lease(options, &send_len, &lease);
-
-	*options = DHCP_OPT_END;
-	DHCP_OPT_CONT(options, send_len);
-
-	if (debug)
-		msg_debug(&((struct dhcp_msg){.data = send_buffer, .length = send_len }), 1);
-	int err = sendto(w->fd,
-		send_buffer, send_len,
-		MSG_DONTWAIT, (struct sockaddr *)&broadcast, sizeof broadcast);
-
-	if (err < 0)
-		dhcpd_error(errno, 1, "Could not send DHCPOFFER");
+	send_offer(loop, w, msg, &lease);
 }
 
 /**
@@ -196,54 +168,14 @@ static void request_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 	if (requested_server->s_addr != msg->sid->sin_addr.s_addr)
 		return;
 
-	int err;
-
 	struct dhcp_lease lease = DHCP_LEASE_EMPTY;
 
-	size_t send_len;
-
-  // NACK
 	if (0) {
-		dhcp_msg_reply(send_buffer, &options, &send_len, msg, DHCPNAK);
-
-		options[0] = DHCP_OPT_END;
-		DHCP_OPT_CONT(options, send_len);
-
-		if (debug)
-			msg_debug(&((struct dhcp_msg){.data = send_buffer, .length = send_len }), 1);
-		err = sendto(w->fd,
-			send_buffer, send_len,
-			MSG_DONTWAIT, (struct sockaddr *)&broadcast, sizeof broadcast);
-
-		if (err < 0)
-			dhcpd_error(0, 1, "Could not send DHCPNAK");
-
+		// NACK
+		send_nak(loop, w, msg);
 	} else {
 		// ACK
-		dhcp_msg_reply(send_buffer, &options, &send_len, msg, DHCPACK);
-
-		memcpy(&lease.address, requested_addr, sizeof(struct in_addr));
-
-		ARRAY_COPY(DHCP_MSG_F_YIADDR(send_buffer), &lease.address, 4);
-
-		options[0] = DHCP_OPT_SERVERID;
-		options[1] = 4;
-		ARRAY_COPY((options + 2), &msg->sid->sin_addr, 4);
-		DHCP_OPT_CONT(options, send_len);
-
-		options = dhcp_opt_add_lease(options, &send_len, &lease);
-
-		*options = DHCP_OPT_END;
-		DHCP_OPT_CONT(options, send_len);
-
-		if (debug)
-			msg_debug(&((struct dhcp_msg){.data = send_buffer, .length = send_len }), 1);
-		err = sendto(w->fd,
-			send_buffer, send_len,
-			MSG_DONTWAIT, (struct sockaddr *)&broadcast, sizeof broadcast);
-
-		if (err < 0)
-			dhcpd_error(0, 1, "Could not send DHCPACK");
+		send_ack(loop, w, msg, &lease, requested_addr);
 	}
 }
 
