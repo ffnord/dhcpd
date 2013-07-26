@@ -317,17 +317,6 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 	if (!DHCP_MSG_MAGIC_CHECK(magic))
 		return;
 
-	/* Convert addresses to strings */
-	char ciaddr[INET_ADDRSTRLEN],
-			 yiaddr[INET_ADDRSTRLEN],
-			 siaddr[INET_ADDRSTRLEN],
-			 giaddr[INET_ADDRSTRLEN];
-
-	inet_ntop(AF_INET, DHCP_MSG_F_CIADDR(recv_buffer), ciaddr, sizeof ciaddr);
-	inet_ntop(AF_INET, DHCP_MSG_F_YIADDR(recv_buffer), yiaddr, sizeof yiaddr);
-	inet_ntop(AF_INET, DHCP_MSG_F_SIADDR(recv_buffer), siaddr, sizeof siaddr);
-	inet_ntop(AF_INET, DHCP_MSG_F_GIADDR(recv_buffer), giaddr, sizeof giaddr);
-
 	/* Extract message type from options */
 	uint8_t *options = DHCP_MSG_F_OPTIONS(recv_buffer);
 	struct dhcp_opt current_option;
@@ -343,10 +332,10 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 		.end = recv_buffer + recvd,
 		.length = recvd,
 		.type = msg_type,
-		.ciaddr = ciaddr,
-		.yiaddr = yiaddr,
-		.siaddr = siaddr,
-		.giaddr = giaddr,
+		.ciaddr.s_addr = ntohl(*DHCP_MSG_F_CIADDR(recv_buffer)),
+		.yiaddr.s_addr = ntohl(*DHCP_MSG_F_YIADDR(recv_buffer)),
+		.siaddr.s_addr = ntohl(*DHCP_MSG_F_SIADDR(recv_buffer)),
+		.giaddr.s_addr = ntohl(*DHCP_MSG_F_GIADDR(recv_buffer)),
 		.source = (struct sockaddr *)&srcaddr,
 		.sid = (struct sockaddr_in *)&server_id
 	};

@@ -122,10 +122,10 @@ struct dhcp_msg
 	size_t length;
 
 	enum dhcp_msg_type type;
-	char *ciaddr;
-	char *yiaddr;
-	char *siaddr;
-	char *giaddr;
+	struct in_addr ciaddr;
+	struct in_addr yiaddr;
+	struct in_addr siaddr;
+	struct in_addr giaddr;
 	uint8_t chaddr[16];
 
 	struct sockaddr *source;
