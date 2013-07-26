@@ -69,23 +69,6 @@ static const char USAGE[] =
 #define MAC_ADDRSTRLEN 18
 
 /**
- * Print debugging information with preamble marking incoming and
- * outgoing packets
- *
- * @param[in] msg Message to dump
- * @param[in] dir Direction of traffic, 0 for incoming and 1 for outgoing
- */
-static void msg_debug(struct dhcp_msg *msg, int dir)
-{
-	if (dir == 0)
-		fprintf(stderr, "--- INCOMING ---\n");
-	else if (dir == 1)
-		fprintf(stderr, "--- OUTGOING ---\n");
-
-	dhcp_msg_dump(stderr, msg);
-}
-
-/**
  * Handle DHCPDISCOVER request and reply to that
  */
 static void discover_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
@@ -274,9 +257,6 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 
 	memcpy(&msg.chaddr, DHCP_MSG_F_CHADDR(recv_buffer), sizeof(msg.chaddr));
 
-	if (debug)
-		msg_debug(&msg, 0);
-
 	switch (msg_type)
 	{
 		case DHCPDISCOVER:
@@ -301,7 +281,6 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 
 		default:
 			fprintf(stderr, BROKEN_SOFTWARE_NOTIFICATION);
-			msg_debug(&msg, 0);
 			break;
 	}
 }
