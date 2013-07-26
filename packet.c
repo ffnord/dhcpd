@@ -11,9 +11,7 @@ struct sockaddr_in broadcast = {
 	.sin_addr = {INADDR_BROADCAST},
 };
 
-bool send_offer(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
-	(void)EV_A;
-
+bool send_offer(int socket, struct dhcp_msg *m, struct dhcp_lease *l) {
 	uint8_t *buf = malloc(DHCP_MSG_LEN);
 	if(!buf) {
 		dhcpd_error(ENOMEM, 1, "Could not send DHCPOFFER");
@@ -37,8 +35,8 @@ bool send_offer(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
 //	if (debug)
 //		msg_debug(&((struct dhcp_msg){.data = send_buffer, .length = send_len }), 1);
 
-	int err = sendto(w->fd, buf, send_len,
-		MSG_DONTWAIT, (struct sockaddr *)&broadcast, sizeof broadcast);
+	int err = sendto(socket, buf, send_len, MSG_DONTWAIT,
+			(struct sockaddr *)&broadcast, sizeof broadcast);
 
 	if (err < 0) {
 		dhcpd_error(errno, 1, "Could not send DHCPOFFER");
@@ -50,9 +48,7 @@ bool send_offer(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
 	return true;
 }
 
-bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
-	(void)EV_A;
-
+bool send_ack(int socket, struct dhcp_msg *m, struct dhcp_lease *l) {
 	uint8_t *buf = malloc(DHCP_MSG_LEN);
 	if(!buf) {
 		dhcpd_error(ENOMEM, 1, "Could not send DHCPOFFER");
@@ -76,8 +72,8 @@ bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
 
 //	if (debug)
 //		msg_debug(&((struct dhcp_msg){.data = buf, .length = send_len }), 1);
-	int err = sendto(w->fd, buf, send_len,
-		MSG_DONTWAIT, (struct sockaddr *)&broadcast, sizeof broadcast);
+	int err = sendto(socket, buf, send_len, MSG_DONTWAIT,
+			(struct sockaddr *)&broadcast, sizeof broadcast);
 
 	if (err < 0) {
 		dhcpd_error(0, 1, "Could not send DHCPACK");
@@ -89,9 +85,7 @@ bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l) {
 	return true;
 }
 
-bool send_nak(EV_P_ ev_io *w, struct dhcp_msg *m) {
-	(void)EV_A;
-
+bool send_nak(int socket, struct dhcp_msg *m) {
 	uint8_t *buf = malloc(DHCP_MSG_LEN);
 	if(!buf) {
 		dhcpd_error(ENOMEM, 1, "Could not send DHCPOFFER");
@@ -108,9 +102,8 @@ bool send_nak(EV_P_ ev_io *w, struct dhcp_msg *m) {
 
 //	if (debug)
 //		msg_debug(&((struct dhcp_msg){.data = buf, .length = send_len }), 1);
-	int err = sendto(w->fd,
-		buf, send_len,
-		MSG_DONTWAIT, (struct sockaddr *)&broadcast, sizeof broadcast);
+	int err = sendto(socket, buf, send_len, MSG_DONTWAIT,
+			(struct sockaddr *)&broadcast, sizeof broadcast);
 
 	if (err < 0) {
 		dhcpd_error(0, 1, "Could not send DHCPNAK");

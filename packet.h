@@ -2,13 +2,11 @@
 
 #include <netinet/in.h>
 
-#include <ev.h>
-
 #include "dhcp.h"
 
 extern struct sockaddr_in server_id;
 extern struct sockaddr_in broadcast;
 
-bool send_offer(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l);
-bool send_ack(EV_P_ ev_io *w, struct dhcp_msg *m, struct dhcp_lease *l);
-bool send_nak(EV_P_ ev_io *w, struct dhcp_msg *m);
+bool send_offer(int socket, struct dhcp_msg *m, struct dhcp_lease *l);
+bool send_ack(int socket, struct dhcp_msg *m, struct dhcp_lease *l);
+bool send_nak(int socket, struct dhcp_msg *m);

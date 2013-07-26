@@ -108,7 +108,7 @@ static void discover_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 
 	free(entry);
 
-	send_offer(EV_A_ w, msg, &lease);
+	send_offer(w->fd, msg, &lease);
 
 	// XXX: Send (lease.address, msg->chaddr, lease.leasetime) to DHT
 }
@@ -165,10 +165,10 @@ static void request_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 
 	if (0) {
 		// NACK
-		send_nak(EV_A_ w, msg);
+		send_nak(w->fd, msg);
 	} else {
 		// ACK
-		send_ack(EV_A_ w, msg, &lease);
+		send_ack(w->fd, msg, &lease);
 	}
 }
 
