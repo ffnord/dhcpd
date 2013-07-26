@@ -3,9 +3,10 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <ev.h>
 
 struct pool_entry {
-  time_t acquired_at;
+  ev_tstamp acquired_at;
   bool own;
   struct in_addr address;
 };

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <ev.h>
 
 #include <netinet/in.h>
 
@@ -142,7 +143,7 @@ struct dhcp_lease
 	struct in_addr *nameservers;
 	size_t nameservers_cnt;
 
-	time_t leasetime;
+	ev_tstamp leasetime;
 	uint8_t prefixlen;
 };
 
