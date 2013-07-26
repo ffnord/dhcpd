@@ -20,8 +20,8 @@ CXXFLAGS += -O3 -flto
 endif
 
 LDFLAGS += -lev
-CFLAGS += -Wall -Wextra -Werror -std=c11 -pedantic -fno-strict-aliasing
-CXXFLAGS += -Wall -Wextra -Werror -std=c++11 -pedantic -fno-strict-aliasing
+CFLAGS += -Wall -Wextra  -std=c11 -pedantic -fno-strict-aliasing
+CXXFLAGS += -Wall -Wextra  -std=c++11 -pedantic -fno-strict-aliasing
 
 SRCS := $(wildcard *.c)
 SRCS_MAIN := $(shell $(GREP) -l 'int main' $(SRCS))
@@ -41,7 +41,7 @@ CFLAGS += $(shell pkg-config --cflags $(LIBS))
 all: $(BIN)
 
 clean:
-	$(RM) dhcpd dhcpstress *.d *.o
+	$(RM) dhcpd dhcpstress dht *.d *.o
 
 $(BIN): $(OBJS)
 	$(LD) -o $@ $@.o $(OBJS_UTIL) $(LDFLAGS) $(FLAGS_L)
