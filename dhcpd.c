@@ -65,9 +65,6 @@ static const char USAGE[] =
 "\t[-interface IF] [-db FILE]\n"
 "\t[-new] [-allocate] [-iprange IP IP] [-router IP]... [-nameserver IP]...\n";
 
-
-#define MAC_ADDRSTRLEN 18
-
 /**
  * Handle DHCPDISCOVER request and reply to that
  */
