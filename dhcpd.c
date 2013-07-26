@@ -77,10 +77,24 @@ static void discover_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 
 	/* XXX: Take address from pool
 	 * 			If it is empty, ask for new address
-	 *			If not, send offer and rebalance pool if below threshhold?
+	 *			If not, send offer
+	 *				and publish lease
+	 *				and rebalance pool if below threshhold?
 	 */
 
 	struct dhcp_lease lease = DHCP_LEASE_EMPTY;
+
+	struct pool_entry *entry;
+
+	entry = pool_get(pool);
+
+	/* If our pool is empty we'll ask the network to offer an address to us.
+	 * In the meantime, we won't respond to the client.
+	 */
+	if (entry == NULL) {
+		// XXX: Ask for address
+		return;
+	}
 
 	lease = (struct dhcp_lease){
 		.routers = cfg.routers,
@@ -88,21 +102,15 @@ static void discover_cb(EV_P_ ev_io *w, struct dhcp_msg *msg)
 		.nameservers = cfg.nameservers,
 		.nameservers_cnt = cfg.nameservers_cnt,
 		.leasetime = cfg.leasetime,
-		.prefixlen = cfg.prefixlen
+		.prefixlen = cfg.prefixlen,
+		.address = entry->address
 	};
-
-	struct pool_entry *entry;
-
-	entry = pool_get(pool);
-
-	if (entry == NULL)
-		return;
-
-	lease.address.s_addr = entry->address.s_addr;
 
 	free(entry);
 
 	send_offer(loop, w, msg, &lease);
+
+	// XXX: Send (lease.address, msg->chaddr, lease.leasetime) to DHT
 }
 
 /**
