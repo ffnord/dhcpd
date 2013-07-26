@@ -207,7 +207,7 @@ static inline bool dhcp_opt_insert(uint8_t *buf, size_t buf_len, size_t *send_le
 		return false;
 	}
 
-	if( (size_t)(*opt - *buf) != *send_len ) {
+	if( (size_t)(*opt - buf) != *send_len ) {
 		return false;
 	}
 
