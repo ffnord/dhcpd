@@ -127,7 +127,6 @@ struct dhcp_msg
 	char *siaddr;
 	char *giaddr;
 	uint8_t chaddr[16];
-	char *srcaddr;
 
 	struct sockaddr *source;
 	struct sockaddr_in *sid;

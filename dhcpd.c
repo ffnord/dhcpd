@@ -293,10 +293,10 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 	(void)revents;
 
 	/* Initialize address struct passed to recvfrom */
-	struct sockaddr_in src_addr = {
+	struct sockaddr_in srcaddr = {
 		.sin_addr = {INADDR_ANY}
 	};
-	socklen_t src_addrlen = AF_INET;
+	socklen_t srcaddrlen = AF_INET;
 
 	/* Receive data from socket */
 	ssize_t recvd = recvfrom(
@@ -304,7 +304,7 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 		recv_buffer,
 		RECV_BUF_LEN,
 		MSG_DONTWAIT,
-		(struct sockaddr * restrict)&src_addr, &src_addrlen);
+		(struct sockaddr * restrict)&srcaddr, &srcaddrlen);
 
 	/* Detect errors */
 	if (recvd < 0)
@@ -321,14 +321,12 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 	char ciaddr[INET_ADDRSTRLEN],
 			 yiaddr[INET_ADDRSTRLEN],
 			 siaddr[INET_ADDRSTRLEN],
-			 giaddr[INET_ADDRSTRLEN],
-			 srcaddr[INET_ADDRSTRLEN];
+			 giaddr[INET_ADDRSTRLEN];
 
 	inet_ntop(AF_INET, DHCP_MSG_F_CIADDR(recv_buffer), ciaddr, sizeof ciaddr);
 	inet_ntop(AF_INET, DHCP_MSG_F_YIADDR(recv_buffer), yiaddr, sizeof yiaddr);
 	inet_ntop(AF_INET, DHCP_MSG_F_SIADDR(recv_buffer), siaddr, sizeof siaddr);
 	inet_ntop(AF_INET, DHCP_MSG_F_GIADDR(recv_buffer), giaddr, sizeof giaddr);
-	inet_ntop(AF_INET, &src_addr.sin_addr, srcaddr, sizeof srcaddr);
 
 	/* Extract message type from options */
 	uint8_t *options = DHCP_MSG_F_OPTIONS(recv_buffer);
@@ -349,8 +347,7 @@ static void req_cb(EV_P_ ev_io *w, int revents)
 		.yiaddr = yiaddr,
 		.siaddr = siaddr,
 		.giaddr = giaddr,
-		.srcaddr = srcaddr,
-		.source = (struct sockaddr *)&src_addr,
+		.source = (struct sockaddr *)&srcaddr,
 		.sid = (struct sockaddr_in *)&server_id
 	};
 
