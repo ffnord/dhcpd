@@ -231,6 +231,7 @@ static inline bool dhcp_opt_insert(uint8_t *buf, size_t buf_len, size_t *send_le
 			return true;
 
 		case 0x01:	//Subnet Mask
+		case 0x02:	//Time Offset
 		case 0x10:	//Swap Server IP
 		case 0x18:	//PMTUD Timeout
 		case 0x1c:	//Broadcast IP
