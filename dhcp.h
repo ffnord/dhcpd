@@ -216,11 +216,161 @@ static inline bool dhcp_opt_insert(uint8_t *buf, size_t buf_len, size_t *send_le
 		return false;
 	}
 
+	size_t raw_data_len = data_len + 2;
+
+	switch(type) {
+		case 0x00:	//Padding
+		case 0xFF:	//End of packet
+			raw_data_len = 1;
+			if(0 != data_len) {
+				return false;
+			}
+
+			(*opt)[0] = type;
+			(*opt)++;
+			*send_len++;
+			return true;
+
+		case 0x01:	//Subnet Mask
+		case 0x02:	//Time Offset
+		case 0x10:	//Swap Server IP
+		case 0x18:	//PMTUD Timeout
+		case 0x1c:	//Broadcast IP
+		case 0x20:	//Router Solicitation Address
+		case 0x23:	//ARP Cache Timeout
+		case 0x26:	//TCP Keepalive Interval
+		case 0x32:	//Requested IP Address
+		case 0x33:	//IP Address Lease Time
+		case 0x3A:	//Renewal (T1) Time
+		case 0x3B:	//Rebind (T2) Time
+			if(4 != data_len) {
+				return false;
+			}
+			break;
+
+		case 0x03:	//Routers
+		case 0x04:	//Timeservers
+		case 0x05:	//Nameservers
+		case 0x06:	//DNS Servers
+		case 0x07:	//Log Servers
+		case 0x08:	//Cookie Servers
+		case 0x09:	//LPR Servers
+		case 0x0A:	//Impress Servers
+		case 0x0B:	//Resource Location Servers
+		case 0x29:	//Network Information Servers
+		case 0x2A:	//Network Time Protocol Servers
+		case 0x2C:	//NetBIOS over TCP/IP Name Servers
+		case 0x2D:	//NetBIOS over TCP/IP Datagramm Distribution Server
+		case 0x30:	//X Windows System Font Server
+		case 0x31:	//X Window System Display Manager
+		case 0x41:	//Network Information Service+ Servers
+		case 0x45:	//SMTP Servers
+		case 0x46:	//POP3 Servers
+		case 0x47:	//NNTP Servers
+		case 0x48:	//HTTP Servers
+		case 0x49:	//Finger Servers
+		case 0x4A:	//IRC Servers
+		case 0x4B:	//StreetTalk Servers
+		case 0x4C:	//StreetTalk Directory Assistance Servers
+			if((0 == data_len) || (0 != data_len % 4)) {
+				return false;
+			}
+			break;
+
+		case 0x0C:	//Hostname Option
+		case 0x0E:	//Merit Dump Filename
+		case 0x0F:	//Domain Name Option
+		case 0x11:	//Root Path
+		case 0x12:	//Extensions Path
+		case 0x28:	//Network Information Service Domain
+		case 0x2B:	//Vendor Specific Information
+		case 0x2F:	//NetBIOS over TCP/IP Scope
+		case 0x37:	//Parameter Request List
+		case 0x38:	//Message
+		case 0x3C:	//Class Identifier
+		case 0x3D:	//Client Identifier
+		case 0x40:	//Network Information Service+ Domain
+		case 0x42:	//TFTP Servername
+		case 0x43:	//Boot Filename
+		case 0x4F:	//LDAP Servers
+		case 0x64:	//PCode
+		case 0x65:	//TCode
+		case 0x78:	//SIP Server
+			if(0 == data_len) {
+				return false;
+			}
+			break;
+
+		case 0x0D:	//Boot File Size (No. of 512 Octet Blocks)
+		case 0x16:	//Maximum Datagramm Reassembly Size
+		case 0x1A:	//Interface MTU
+		case 0x39:	//Maximum DHCP Message Size
+			if(2 != data_len) {
+				return false;
+			}
+			break;
+
+		case 0x13:	//IP Forwarding
+		case 0x14:	//Non-Local Source-Routing
+		case 0x17:	//IP Default TTL
+		case 0x1B:	//All Subnets local
+		case 0x1D:	//Subnet Mask Discovery
+		case 0x1E:	//Subnet Mask Supplier
+		case 0x1F:	//Router Discovery
+		case 0x22:	//Trailer Encapsulation
+		case 0x24:	//Ethernet Encapsulation
+		case 0x25:	//TCP Default TTL
+		case 0x27:	//TCP Keepalive Garbage
+		case 0x2E:	//NetBIOS over TCP/IP Node Type
+		case 0x34:	//Option Override
+		case 0x35:	//DHCP Message Type
+		case 0x36:	//DHCP Server ID
+			if(1 != data_len) {
+				return false;
+			}
+			break;
+
+		case 0x15:	//NLSR Policy
+		case 0x21:	//Static Routes
+			if((0 == data_len) || (0 != data_len % 8)) {
+				return false;
+			}
+			break;
+
+		case 0x19:	//PMTUD Plateau Table
+			if((0 == data_len) || (0 != data_len % 2)) {
+				return false;
+			}
+			break;
+
+		case 0x44:	//Mobile Home Agent
+			if(0 != data_len % 4) {
+				return false;
+			}
+			break;
+
+		case 0x79:	//Classless Static Routes
+			//Enforces RFC 3396
+			if( 5 > data_len) {
+				return false;
+			}
+			break;
+
+		case 0x50:	//Rapid Commit
+			if(0 != data_len) {
+				return false;
+			}
+			break;
+
+		default:
+			//No special restrictions
+	}
+
 	if(data_len > 255) {
 		return false;
 	}
 
-	if(*send_len + 2 + data_len > buf_len) {
+	if(*send_len + raw_data_len > buf_len) {
 		return false;
 	}
 
